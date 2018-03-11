@@ -1,6 +1,9 @@
 package com.example.pemil.interview;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,4 +68,22 @@ class NetworkUtils {
         } finally {
             urlConnection.disconnect();
         }
-    }}
+    }
+
+    static Bitmap downloadImageFromPath(String path) throws IOException {
+        URL url = null;
+        try {
+            url = new URL(path);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        Bitmap bmp = null;
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        try {
+            bmp = BitmapFactory.decodeStream(urlConnection.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bmp;
+    }
+}

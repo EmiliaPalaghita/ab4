@@ -1,39 +1,43 @@
 package com.example.pemil.interview;
 
+import android.graphics.Bitmap;
+
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * Created by pemil on 09.03.2018.
  */
 
-public class User {
+public class User implements Serializable {
+    private int id;
     private String userName;
-    private int photoId;
     private String urlPhoto;
     private HashMap<String, Integer> badges;
+//    private Bitmap bmpImage;
 
-    User(String name, int id) {
+    User(String name) {
         this.userName = name;
-        this.photoId = id;
+
     }
 
     String getUserName() {
         return userName;
     }
 
-    public void setUserName(String userName) {
+    public void setUserName(int id, String userName) {
         this.userName = userName;
     }
 
-    int getPhotoId() {
-        return photoId;
+    public int getId() {
+        return id;
     }
 
-    public void setPhotoId(int photoId) {
-        this.photoId = photoId;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public String getUrlPhoto() {
+    String getUrlPhoto() {
         return urlPhoto;
     }
 
@@ -47,5 +51,15 @@ public class User {
 
     void setBadges(HashMap<String, Integer> badges) {
         this.badges = badges;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", urlPhoto='" + urlPhoto + '\'' +
+                ", badges=" + badges +
+                '}';
     }
 }

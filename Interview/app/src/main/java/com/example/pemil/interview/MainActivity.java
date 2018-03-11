@@ -1,5 +1,7 @@
 package com.example.pemil.interview;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.ListI
 
     private ArrayList<User> users;
 
+    private int userID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,8 +41,6 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.ListI
         URL url = NetworkUtils.buildUrl();
         new UserDataQueryTask().execute(url);
 
-        Log.i("USERS SIZE", String.valueOf(users.size()));
-
         recyclerView = findViewById(R.id.rec_view);
         recyclerView.setHasFixedSize(true);
 
@@ -45,27 +49,16 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.ListI
 
     }
 
-    private void initalizeData() {
-        users = new ArrayList<>();
-        users.add(new User("Emma Wilson", R.drawable.profile));
-        users.add(new User("Lavery Maiss", R.drawable.profile));
-        users.add(new User("Lillie Watts", R.drawable.profile));
-    }
-
     @Override
     public void onListItemClick(int clickedItemIndex) {
-        if (mToast != null) {
-            mToast.cancel();
-        }
-        String toastMessage = "Item #" + clickedItemIndex + " clicked.";
-        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
-
-        mToast.show();
+        Intent intent = new Intent(MainActivity.this, UserActivity.class);
+        Log.d("SENT USER ", String.valueOf(users.get(clickedItemIndex).toString()));
+        intent.putExtra("user", users.get(clickedItemIndex));
+        startActivity(intent);
     }
 
     public class UserDataQueryTask extends AsyncTask<URL, Void, String> {
 
-        // COMPLETED (26) Override onPreExecute to set the loading indicator to visible
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -88,12 +81,22 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.ListI
             if (searchResults != null && !searchResults.equals("")) {
                 try {
                     parseJSONData(searchResults);
-                    userAdapter = new UserAdapter(users);
+                    userAdapter = new UserAdapter(users, MainActivity.this);
                     recyclerView.setAdapter(userAdapter);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    private class UserBitmap {
+        private int id;
+        private Bitmap bitmap;
+
+        UserBitmap(int id, Bitmap bmp) {
+            this.id = id;
+            this.bitmap = bmp;
         }
     }
 
@@ -114,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.ListI
         String username = userObj.getString("display_name");
         String profileURL = userObj.getString("profile_image");
         JSONObject badges = userObj.getJSONObject("badge_counts");
-        User user = new User(username, R.drawable.profile);
+        User user = new User(username);
         user.setUrlPhoto(profileURL);
         String goldBadge = badges.getString("gold");
         String silverBadge = badges.getString("silver");
@@ -124,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.ListI
         map.put("silver", Integer.valueOf(silverBadge));
         map.put("gold", Integer.valueOf(goldBadge));
         user.setBadges(map);
+
         users.add(user);
     }
-
 }
