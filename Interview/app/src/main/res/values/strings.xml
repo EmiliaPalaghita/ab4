@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Interview</string>
+    <string name="user_name">user name</string>
 </resources>
