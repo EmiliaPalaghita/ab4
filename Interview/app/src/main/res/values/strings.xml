@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Interview</string>
     <string name="user_name">user name</string>
+    <string name="profile_picture">profile picture</string>
+    <string name="default_location">Programmers\' Country</string>
+    <string name="gold_badge">GOLD BADGE</string>
+    <string name="silver_badge">SILVER BADGE</string>
+    <string name="bronze_badge">BRONZE BADGE</string>
+    <string name="zero_value">0</string>
+    <string name="internet_error">THERE IS NO CONNECTION TO THE INTERNET</string>
 </resources>

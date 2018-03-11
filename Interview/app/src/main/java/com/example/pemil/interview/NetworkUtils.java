@@ -3,7 +3,6 @@ package com.example.pemil.interview;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +31,7 @@ class NetworkUtils {
     private static String PAGESIZE_QUERY = "pagesize";
     private static String PAGESIZE_VALUE = "10";
 
+    /*builds the URL needed to get the data*/
     static URL buildUrl() {
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                 .appendQueryParameter(PAGESIZE_QUERY, PAGESIZE_VALUE)
@@ -70,6 +70,7 @@ class NetworkUtils {
         }
     }
 
+    /*download image based on a string*/
     static Bitmap downloadImageFromPath(String path) throws IOException {
         URL url = null;
         try {

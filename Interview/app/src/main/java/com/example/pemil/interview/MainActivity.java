@@ -1,7 +1,11 @@
 package com.example.pemil.interview;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,7 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,24 +28,25 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements UserAdapter.ListItemClickListener {
 
-    private UserAdapter userAdapter;
     private RecyclerView recyclerView;
-    private Toast mToast;
-
+    private TextView internetErrorTextView;
     private ArrayList<User> users;
-
-    private int userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        setContentView(R.layout.activity_main);
+        recyclerView = findViewById(R.id.rec_view);
+        internetErrorTextView = findViewById(R.id.internet_error_tv);
+
+        checkInternetConnection();
+
+        /*Gets all data needed to be displayed*/
         users = new ArrayList<>();
         URL url = NetworkUtils.buildUrl();
         new UserDataQueryTask().execute(url);
 
-        recyclerView = findViewById(R.id.rec_view);
         recyclerView.setHasFixedSize(true);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -49,6 +54,20 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.ListI
 
     }
 
+    /*Method that checks if the phone is connected tot the Internet*/
+    private void checkInternetConnection() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = cm.getActiveNetworkInfo();
+        if (activeNetworkInfo == null) {
+            recyclerView.setVisibility(View.INVISIBLE);
+            internetErrorTextView.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            internetErrorTextView.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    /*Opens the UserActivity activity for an user*/
     @Override
     public void onListItemClick(int clickedItemIndex) {
         Intent intent = new Intent(MainActivity.this, UserActivity.class);
@@ -57,12 +76,9 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.ListI
         startActivity(intent);
     }
 
+    /*Background task that downloads data from the API*/
+    @SuppressLint("StaticFieldLeak")
     public class UserDataQueryTask extends AsyncTask<URL, Void, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
 
         @Override
         protected String doInBackground(URL... params) {
@@ -81,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.ListI
             if (searchResults != null && !searchResults.equals("")) {
                 try {
                     parseJSONData(searchResults);
-                    userAdapter = new UserAdapter(users, MainActivity.this);
+                    UserAdapter userAdapter = new UserAdapter(users, MainActivity.this);
                     recyclerView.setAdapter(userAdapter);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -90,16 +106,7 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.ListI
         }
     }
 
-    private class UserBitmap {
-        private int id;
-        private Bitmap bitmap;
-
-        UserBitmap(int id, Bitmap bmp) {
-            this.id = id;
-            this.bitmap = bmp;
-        }
-    }
-
+    /*Create the users based on the json parameter*/
     private void parseJSONData(String json) throws JSONException {
         JSONObject object = new JSONObject(json);
         JSONArray jsonArray;
@@ -113,20 +120,30 @@ public class MainActivity extends AppCompatActivity implements UserAdapter.ListI
         }
     }
 
-    private void addUser(JSONObject userObj) throws JSONException {
-        String username = userObj.getString("display_name");
-        String profileURL = userObj.getString("profile_image");
-        JSONObject badges = userObj.getJSONObject("badge_counts");
-        User user = new User(username);
-        user.setUrlPhoto(profileURL);
+    /*return a hashmap that contains all types of badges*/
+    private HashMap<String, Integer> createBadgeMap(JSONObject badges) throws JSONException {
         String goldBadge = badges.getString("gold");
         String silverBadge = badges.getString("silver");
         String bronzeBadge = badges.getString("bronze");
-        HashMap<String, Integer> map = new HashMap<>(3);
+
+        HashMap<String, Integer> map = new HashMap<>();
+
         map.put("bronze", Integer.valueOf(bronzeBadge));
         map.put("silver", Integer.valueOf(silverBadge));
         map.put("gold", Integer.valueOf(goldBadge));
-        user.setBadges(map);
+
+        return map;
+    }
+
+    /*add an user*/
+    private void addUser(JSONObject userObj) throws JSONException {
+
+        User user = new User(
+                userObj.getString("display_name"),
+                userObj.getString("profile_image"),
+                createBadgeMap(userObj.getJSONObject("badge_counts")),
+                userObj.getString("location")
+        );
 
         users.add(user);
     }

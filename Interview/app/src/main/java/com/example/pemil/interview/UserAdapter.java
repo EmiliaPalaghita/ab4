@@ -1,5 +1,6 @@
 package com.example.pemil.interview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -74,6 +75,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             new ImageTask().execute(user.getUrlPhoto());
         }
 
+        @SuppressLint("StaticFieldLeak")
         class ImageTask extends AsyncTask<String, Void, Bitmap> {
 
             @Override

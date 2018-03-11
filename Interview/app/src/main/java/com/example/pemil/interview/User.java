@@ -10,31 +10,25 @@ import java.util.HashMap;
  */
 
 public class User implements Serializable {
-    private int id;
     private String userName;
     private String urlPhoto;
     private HashMap<String, Integer> badges;
-//    private Bitmap bmpImage;
+    private String location;
 
-    User(String name) {
+    User(String name, String url, HashMap<String,
+            Integer> badges, String location) {
         this.userName = name;
-
+        this.urlPhoto = url;
+        this.badges = badges;
+        this.location = location;
     }
 
     String getUserName() {
         return userName;
     }
 
-    public void setUserName(int id, String userName) {
+    public void setUserName(String userName) {
         this.userName = userName;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     String getUrlPhoto() {
@@ -53,10 +47,17 @@ public class User implements Serializable {
         this.badges = badges;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", urlPhoto='" + urlPhoto + '\'' +
                 ", badges=" + badges +
